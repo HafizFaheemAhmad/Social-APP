@@ -101,11 +101,10 @@ class RegisterController extends BaseController
     //for logout user
     public function logout(Request $request)
     {
-        $token=$request->bearerToken();
-        $delete=User::where("jwt_token",$token)->update(["jwt_token"=>NULL]);
+        $token = $request->bearerToken();
+        $delete = User::where("jwt_token", $token)->update(["jwt_token" => NULL]);
         if ($delete) {
             return response()->json(['message' => 'User successfully Logout'], 200);
         }
-
     }
 }

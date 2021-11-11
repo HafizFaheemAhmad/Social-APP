@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Post extends Model
+class Comment extends Model
 {
     protected $guarded = [];
 
@@ -13,8 +13,8 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function comments()
+    public function replies()
     {
-        return $this->hasMany(Comment::class, 'commentable')->whereNull('parent_id');
+        return $this->hasMany(Comment::class, 'parent_id');
     }
 }
