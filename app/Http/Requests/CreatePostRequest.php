@@ -19,7 +19,9 @@ class CreatePostRequest extends FormRequest
         return [
             'title' => 'required|string',
             'body' => 'required|string',
-            'user_id' => 'required|string'
+            'user_id' => 'required|string',
+            'attachment' => 'required'
+
         ];
     }
 }

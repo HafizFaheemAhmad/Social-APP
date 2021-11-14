@@ -4,33 +4,39 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\RegisterUserRequest;
+use App\Http\Requests\LoginUserRequest;
+
+
 // use Validator;
 use \Firebase\JWT\JWT;
 
 class RegisterController extends BaseController
 {
     //For user Registration
-    public function register(Request $request)
+    public function register(RegisterUserRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required',
-            'c_password' => 'required|same:password',
-        ]);
-        //check validation
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 400);
-        }
         //generate email verification token
-        $input = $request->all();
+        $input = $request->validated();
+        $file_name = null;
+        // converting base64 decoded image to simple image if exist
+        if (!empty($input['attachment'])) {
+            // upload Attachment
+            $destinationPath = storage_path('\api\users\\');
+            $input_type_aux = explode("/", $input['attachment']['mime']);
+            $attachment_extention = $input_type_aux[1];
+            $image_base64 = base64_decode($input['attachment']['data']);
+            $file_name = $input['name'] . uniqid() . '.' . $attachment_extention;
+            $file = $destinationPath . $file_name;
+            // saving in local storage
+            file_put_contents($file, $image_base64);
+        }
         $email_varified_token = base64_encode($input['name']);
         $input['varified_token'] = $email_varified_token;
         $input['password'] = bcrypt($input['password']);
+        $input['profile_image'] = $file_name;
         $user = User::create($input);
         //generate URL link
         $details['link'] = url('api/emailConfirmation/' . $user->email . '/' . $email_varified_token);
@@ -40,10 +46,11 @@ class RegisterController extends BaseController
         return $this->sendResponse($success, 'User register successfully.', 200);
     }
     //For user Login
-    public function login(Request $request)
+    public function login(LoginUserRequest $request)
     {
+        $input = $request->validated();
         //check email and password for authentication
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::attempt(['email' => $input['email'], 'password' => $input['password']])) {
             $user = Auth::user();
             $user_data = array(
                 "id" => $user->id,
@@ -79,7 +86,7 @@ class RegisterController extends BaseController
         }
     }
     //email verification on registration
-    public function emailVarify(Request $request, $email, $token)
+    public function emailVarify($email, $token)
 
     {
         $user = User::where('email', $email)->where('varified_token', $token)->first();
@@ -106,5 +113,63 @@ class RegisterController extends BaseController
         if ($delete) {
             return response()->json(['message' => 'User successfully Logout'], 200);
         }
+    }
+
+    //Update user
+    public function UpdateUser(Request $request, $id)
+    {
+
+        $user = User::find($id);
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->password = $request->input('password');
+
+        $input = $request;
+        $file_name = null;
+        if (!empty($input['attachment'])) {
+            // upload Attachment
+            $destinationPath = storage_path('\api\users\\');
+            $input_type_aux = explode("/", $input['attachment']['mime']);
+            $attachment_extention = $input_type_aux[1];
+            $image_base64 = base64_decode($input['attachment']['data']);
+            $file_name = $input['name'] . uniqid() . '.' . $attachment_extention;
+            $file = $destinationPath . $file_name;
+            // saving in local storage
+            file_put_contents($file, $image_base64);
+            $input['profile_image'] = $file_name;
+        }
+
+
+        $user->save();
+        return response()->json([
+            "success" => true,
+            "message" => " User Updated Successfully",
+            "data" => $user
+        ]);
+    }
+    //Delete User
+    public function DeleteUser($id)
+    {
+        $user = new User();
+        $user = User::find($id);
+        if ($user) {
+            $user->delete();
+            return response()->json([
+                "success" => true,
+                "message" => "User Deleted Successfully!!",
+                "data" => $user
+            ]);
+        } else {
+            return response()->json([
+                "success" => true,
+                "message" => "User not exist",
+                "data" => $user
+            ]);
+        }
+    }
+
+    public function SearchUser($name)
+    {
+        return User::where('name', 'like', '%' . $name . '%')->get();
     }
 }

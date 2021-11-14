@@ -17,6 +17,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->string('jwt_token')->nullable();
             $table->string('varified_token');
+            $table->string('profile_image');
             $table->rememberToken();
             $table->timestamps();
         });

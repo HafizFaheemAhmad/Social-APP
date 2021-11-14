@@ -7,11 +7,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class verifyemail extends Mailable
+class ForgotPassword extends Mailable
 {
-    use Queueable, SerializesModels;
 
+    use Queueable, SerializesModels;
     public $details;
+
     public function __construct($details)
     {
         $this->details = $details;
@@ -19,7 +20,6 @@ class verifyemail extends Mailable
 
     public function build()
     {
-        return $this->subject('Mail from hafizfaheem')
-            ->view('email.verifyemail');
+        return $this->subject("New Password")->view("forgotPassword");
     }
 }
