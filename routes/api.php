@@ -11,9 +11,20 @@ use App\Http\Controllers\FriendController;
 //Route For Middleware
 Route::middleware([JwtAuth::class])->group(function () {
 
+//Routes for Users
+
     //Route for logout user
     Route::post('logout', [RegisterController::class, 'logout']);
-    //Route for show save
+    //Route for Update user
+    Route::put('updateUser/{id}', [RegisterController::class, 'UpdateUser']);
+    //Route for delete user
+    Route::delete('deleteUser/{id}', [RegisterController::class, 'DeleteUser']);
+    //Route for search user
+    Route::get('search/{name}', [RegisterController::class, 'SearchUser']);
+
+//Routes for Post
+
+    //Route for show posts
     Route::get('/posts', [PostController::class, 'index']);
     //Route for show post top-five
     Route::get('/posts/top-five', [PostController::class, 'indexTopFive']);
@@ -21,24 +32,22 @@ Route::middleware([JwtAuth::class])->group(function () {
     Route::get('/posts/{post}', [PostController::class, 'show']);
     //Route for save post
     Route::post('/post', [PostController::class, 'store']);
+    //Route for update post
+    Route::put('update', [PostController::class, 'UpdatePost']);
+    //Route for delele post
+    Route::delete('delete/{id}', [PostController::class, 'DeletePost']);
+
+//Routes for Comment
+
     //Route for show comment
     Route::get('/comments', [CommentController::class, 'index']);
     //Route for save comment
     Route::post('/posts/{post}/comment', [CommentController::class, 'store']);
     //Route for delete comment
     Route::delete('DeleteComment/{id}', [CommentController::class, 'DeleteComment']);
-    //Route for Update user
-    Route::put('updateUser/{id}', [RegisterController::class, 'UpdateUser']);
-    //Route for delete user
-    Route::delete('deleteUser/{id}', [RegisterController::class, 'DeleteUser']);
-    //Route for update post
-    Route::put('update', [PostController::class, 'UpdatePost']);
-    //Route for delele post
-    Route::delete('delete/{id}', [PostController::class, 'DeletePost']);
     //Route for update comment
     Route::put('updateComment', [CommentController::class, 'updateComment']);
-    //Route for search user
-    Route::get('search/{name}', [RegisterController::class, 'SearchUser']);
+
     //Route for Add Friend
     Route::post('/addfriend', [FriendController::class, 'addFriend']);
 });
