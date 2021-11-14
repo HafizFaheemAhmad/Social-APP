@@ -6,7 +6,7 @@ use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\PostController;
 use App\Http\Controllers\API\CommentController;
 use App\Http\Controllers\API\ForgotPasswordController;
-use App\Http\Controllers\FriendController;
+use App\Http\Controllers\API\FriendController;
 
 //Route For Middleware
 Route::middleware([JwtAuth::class])->group(function () {
