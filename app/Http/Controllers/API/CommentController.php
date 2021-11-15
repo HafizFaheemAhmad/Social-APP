@@ -23,6 +23,8 @@ class CommentController extends Controller
     // param  \Illuminate\Http\Request  $request
     //return \Illuminate\Http\Response
 
+//For save Comment
+
     public function store(CreateCommentRequest $request, Post $post)
     {
         $data = $request->validated();
@@ -32,10 +34,10 @@ class CommentController extends Controller
         return new CommentResource($comment->fresh());
     }
 
+//For Update Comment
+
     public function updateComment(UpdateCommentRequest $request)
     {
-
-
         $data = Comment::find($request['id']);
         $data->comment = $request->input('comment');
         if (!empty($input['attachment'])) {
@@ -57,6 +59,8 @@ class CommentController extends Controller
             "message" => "Comment Updated Successfully!"
         ]);
     }
+
+//For Delete Comment
 
     public function DeleteComment($id)
     {

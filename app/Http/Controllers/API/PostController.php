@@ -26,6 +26,8 @@ class PostController extends Controller
     //param  \Illuminate\Http\Request  $request
     //return \Illuminate\Http\Response
 
+// For save Post
+
     public function store(CreatePostRequest $request)
     {
 
@@ -56,11 +58,16 @@ class PostController extends Controller
     // Display the specified resource.
     //param  \App\Post  $post
     //return \Illuminate\Http\Response
+
+//For show Post
+
     public function show(Post $post)
     {
         return new PostResource($post);
     }
-    //Update post
+
+//For Update post
+
     public function UpdatePost(UpdatePostRequest $request)
     {
         $input = $request->validated();
@@ -88,7 +95,9 @@ class PostController extends Controller
             "message" => "Post Updated Successfully!"
         ]);
     }
-    //Delete post
+
+//For Delete post
+
     public function DeletePost($id)
     {
         $user = new Post();

@@ -7,6 +7,7 @@ use App\Http\Controllers\API\PostController;
 use App\Http\Controllers\API\CommentController;
 use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\FriendController;
+use App\Http\Controllers\API\UserController;
 
 //Route For Middleware
 Route::middleware([JwtAuth::class])->group(function () {
@@ -14,13 +15,13 @@ Route::middleware([JwtAuth::class])->group(function () {
 //Routes for Users
 
     //Route for logout user
-    Route::post('logout', [RegisterController::class, 'logout']);
+    Route::post('logout', [UserController::class, 'logout']);
     //Route for Update user
-    Route::put('updateUser/{id}', [RegisterController::class, 'UpdateUser']);
+    Route::put('updateUser/{id}', [UserController::class, 'UpdateUser']);
     //Route for delete user
-    Route::delete('deleteUser/{id}', [RegisterController::class, 'DeleteUser']);
+    Route::delete('deleteUser/{id}', [UserController::class, 'DeleteUser']);
     //Route for search user
-    Route::get('search/{name}', [RegisterController::class, 'SearchUser']);
+    Route::get('search/{name}', [UserController::class, 'SearchUser']);
 
 //Routes for Post
 
@@ -55,7 +56,7 @@ Route::middleware([JwtAuth::class])->group(function () {
 // Route for registration user
 Route::post('register', [RegisterController::class, 'register']);
 //Route for login user
-Route::post('login', [RegisterController::class, 'login']);
+Route::post('login', [UserController::class, 'login']);
 //Route for email verification
 Route::get('emailConfirmation/{email}/{token}', [RegisterController::class, 'emailVarify']);
 //Route for Forgetpassword
