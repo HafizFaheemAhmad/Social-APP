@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model
 {
     protected $fillable = [
-        'title', 'body', 'user_id', 'profile_image'
+        'title', 'body', 'user_id', 'attachment'
     ];
 
     public function comments()

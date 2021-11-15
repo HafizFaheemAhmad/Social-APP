@@ -30,7 +30,6 @@ class PostController extends Controller
 
     public function store(CreatePostRequest $request)
     {
-
         $file_name = null;
         // converting base64 decoded image to simple image if exist
         if (!empty($request['attachment'])) {
@@ -39,19 +38,18 @@ class PostController extends Controller
             $request_type_aux = explode("/", $request['attachment']['mime']);
             $attachment_extention = $request_type_aux[1];
             $image_base64 = base64_decode($request['attachment']['data']);
-            $file_name = $request['name'] . uniqid() . '.' . $attachment_extention;
+            $file_name = uniqid() . '.' . $attachment_extention;
             $file = $destinationPath . $file_name;
             // saving in local storage
             file_put_contents($file, $image_base64);
         }
-
+        $data = $request->validated();
         $post = new Post();
         $post->attachment = $file_name;
-        $request->profile_image = $file_name;
-        $data = $request->validated();
-        $post = Post::make($data);
-        $post->user()->associate($request->user_id);
-        dd($post);
+        $post->title = $data['title'];
+        $post->body = $data['body'];
+        // $post = Post::make($data);
+        $post->user()->associate($data['user_id']);
         $post->save();
         return new PostResource($post->fresh());
     }
@@ -86,7 +84,6 @@ class PostController extends Controller
             // saving in local storage
             file_put_contents($file, $image_base64);
             $data->attachment = $file_name;
-            $input['profile_image'] = $file_name;
         }
         //store your file into directory and db
         $data->save();

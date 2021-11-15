@@ -16,9 +16,10 @@ class UpdatePostRequest extends FormRequest
     public function rules()
     {
         return [
+            "id" => "exists:posts",
             'title' => 'required|string',
             'body' => 'required',
-            'profile_image' => 'array',
+            'attachment' => 'array',
         ];
     }
 }
