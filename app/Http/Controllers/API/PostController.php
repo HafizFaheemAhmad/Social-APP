@@ -17,6 +17,7 @@ class PostController extends Controller
     {
         return PostResource::collection(Post::all());
     }
+    //For show post top five
     public function indexTopFive()
     {
         $postsQuery = Post::withCount('comments')->orderBy('comments_count')->limit(5);
@@ -30,28 +31,39 @@ class PostController extends Controller
 
     public function store(CreatePostRequest $request)
     {
-        $file_name = null;
-        // converting base64 decoded image to simple image if exist
-        if (!empty($request['attachment'])) {
-            // upload Attachment
-            $destinationPath = storage_path('\post\users\\');
-            $request_type_aux = explode("/", $request['attachment']['mime']);
-            $attachment_extention = $request_type_aux[1];
-            $image_base64 = base64_decode($request['attachment']['data']);
-            $file_name = uniqid() . '.' . $attachment_extention;
-            $file = $destinationPath . $file_name;
-            // saving in local storage
-            file_put_contents($file, $image_base64);
+        try {
+            $file_name = null;
+            // converting base64 decoded image to simple image if exist
+            if (!empty($request['attachment'])) {
+                // upload Attachment
+                $destinationPath = storage_path('\post\users\\');
+                $request_type_aux = explode("/", $request['attachment']['mime']);
+                $attachment_extention = $request_type_aux[1];
+                $image_base64 = base64_decode($request['attachment']['data']);
+                $file_name = uniqid() . '.' . $attachment_extention;
+                $file = $destinationPath . $file_name;
+                // saving in local storage
+                file_put_contents($file, $image_base64);
+            }
+            $data = $request->validated();
+            $post = new Post();
+            $post->attachment = $file_name;
+            $post->title = $data['title'];
+            $post->body = $data['body'];
+            // $post = Post::make($data);
+            $post->user()->associate($data['user_id']);
+            $post->save();
+            if ($post) {
+                $success['message'] =  "Post Create Successfully";
+                return response()->json([$success, $post]);
+            } else {
+                $success['message'] =  "Something went wrong";
+                return response()->json($success, 404);
+            }
+            return new PostResource($post->fresh());
+        } catch (\Exception $ex) {
+            return response()->json(['error' => $ex->getMessage()], 500);
         }
-        $data = $request->validated();
-        $post = new Post();
-        $post->attachment = $file_name;
-        $post->title = $data['title'];
-        $post->body = $data['body'];
-        // $post = Post::make($data);
-        $post->user()->associate($data['user_id']);
-        $post->save();
-        return new PostResource($post->fresh());
     }
     // Display the specified resource.
     //param  \App\Post  $post
@@ -64,52 +76,61 @@ class PostController extends Controller
         return new PostResource($post);
     }
 
-//For Update post
+    //For Update post
 
     public function UpdatePost(UpdatePostRequest $request)
     {
-        $input = $request->validated();
-        $data = Post::find($request['id']);
-        $data->title = $request->input('title');
-        $data->body = $request->input('body');
+        try {
+            $input = $request->validated();
+            $data = Post::find($request['id']);
+            $data->title = $request->input('title');
+            $data->body = $request->input('body');
 
-        if (!empty($input['attachment'])) {
-            // upload Attachment
-            $destinationPath = storage_path('\post\users\\');
-            $input_type_aux = explode("/", $input['attachment']['mime']);
-            $attachment_extention = $input_type_aux[1];
-            $image_base64 = base64_decode($input['attachment']['data']);
-            $file_name = uniqid() . '.' . $attachment_extention;
-            $file = $destinationPath . $file_name;
-            // saving in local storage
-            file_put_contents($file, $image_base64);
-            $data->attachment = $file_name;
+            if (!empty($input['attachment'])) {
+                // upload Attachment
+                $destinationPath = storage_path('\post\users\\');
+                $input_type_aux = explode("/", $input['attachment']['mime']);
+                $attachment_extention = $input_type_aux[1];
+                $image_base64 = base64_decode($input['attachment']['data']);
+                $file_name = uniqid() . '.' . $attachment_extention;
+                $file = $destinationPath . $file_name;
+                // saving in local storage
+                file_put_contents($file, $image_base64);
+                $data->attachment = $file_name;
+            }
+            //store your file into directory and db
+            $data->save();
+            if ($data) {
+                $success['message'] =  "Post Updated Successfully";
+                return response()->json([$success, 200, $data]);
+            } else {
+
+                $success['message'] =  "Something went wrong";
+                return response()->json($success, 404);
+            }
+        } catch (\Exception $ex) {
+            return response()->json(['error' => $ex->getMessage()], 500);
         }
-        //store your file into directory and db
-        $data->save();
-        return response()->json([
-            "success" => true,
-            "message" => "Post Updated Successfully!"
-        ]);
     }
 
 //For Delete post
 
     public function DeletePost($id)
     {
-        $user = new Post();
-        $user = Post::find($id);
-        if ($user) {
-            $user->delete();
-            return response()->json([
-                "success" => true,
-                "message" => "Post Deleted Successfully!!"
-            ]);
-        } else {
-            return response()->json([
-                "success" => true,
-                "message" => "Post not exist"
-            ]);
+        try {
+            $user = new Post();
+            $user = Post::find($id);
+            if ($user) {
+                $user->delete();
+                $success['message'] =  "Post Deleted Successfully";
+                return response()->json([$success, 200, $user]);
+            } else {
+
+                $success['message'] =  "Post not exist";
+                return response()->json($success, 404);
+            }
+        } catch (\Exception $ex) {
+            return response()->json(['error' => $ex->getMessage()], 500);
         }
     }
 }

@@ -4,23 +4,30 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
+    public function sendResponse($result, $status_code)
     {
-        //
+        $response = [
+            'success' => true,
+            'data'    => $result,
+        ];
+        return response()->json($response, $status_code);
     }
 
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
+    public function sendError($error, $code = 404)
+    {
+        $response = [
+            'success' => false,
+            'message' => $error,
+        ];
+        if (!empty($errorMessages)) {
+            $response['data'] = $errorMessages;
+        }
+        return response()->json($response, $code);
+    }
+
     public function boot()
     {
         //

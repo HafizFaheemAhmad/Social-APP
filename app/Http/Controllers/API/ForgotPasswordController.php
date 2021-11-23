@@ -12,19 +12,29 @@ use Illuminate\Http\Request;
 
 class ForgotPasswordController extends Controller
 {
-    public $successStatus = 200;
+
     public function forgotPassword(ForgotRequest $request)
     {
-        $input = $request->validated();
-        $user_data = User::where('email', $input['email'])->first();
-        $string = "ABC";
+        try {
+            $input = $request->validated();
+            $user_data = User::where('email', $input['email'])->first();
+            $string = "ABC";
 
-        $password = substr(str_shuffle(str_repeat($string, 12)), 0, 12);
-        $user_data->password = bcrypt($password);
-        $user_data->save();
-        //for generate link in URL
-        $details['link'] = url('api/forogtpassword/' . $user_data->password . 'api/email/' . $user_data->email . '/');
-        Mail::to($input['email'])->send(new ForgotPassword($details));
-        return response()->json(['success' => "New Password Send to Your Mail!"], $this->successStatus);
+            $password = substr(str_shuffle(str_repeat($string, 12)), 0, 12);
+            $user_data->password = bcrypt($password);
+            $user_data->save();
+            //for generate link in URL
+            $details['link'] = url('api/forogtpassword/' . $user_data->password . 'api/email/' . $user_data->email . '/');
+            Mail::to($input['email'])->send(new ForgotPassword($details));
+            if ($details) {
+                $success['message'] =  "New Password Send to Your Mail";
+                return response()->json([$success, 200]);
+            } else {
+                $success['message'] =  "Something went wrong";
+                return response()->json($success, 404);
+            }
+        } catch (\Exception $ex) {
+            return response()->json(['error' => $ex->getMessage()], 500);
+        }
     }
 }

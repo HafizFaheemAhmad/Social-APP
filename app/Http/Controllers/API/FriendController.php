@@ -11,6 +11,9 @@ use \Firebase\JWT\key;
 
 class FriendController extends Controller
 {
+
+// Add Friend
+
     public function addFriend(Request $req)
     {
         $fid = $req->fid;
@@ -35,7 +38,27 @@ class FriendController extends Controller
                 return response(["message" => "you are not allow to be friend of yourself"]);
             }
         } catch (\Exception $ex) {
-            return $ex->getMessage();
+            return response()->json(['error' => $ex->getMessage()], 500);
+        }
+    }
+
+//Remove Friend
+
+    public function removeFriend(Request $req)
+    {
+        try {
+            $fid = $req->fid;
+            $token = request()->bearerToken();
+            $decoded_data = JWT::decode($token, new Key('example', 'HS256'));
+            User::where("jwt_token", $token)->first();
+
+            if (Friend::where(['userid_1' => $decoded_data->data->id, 'userid_2' => $fid])->delete()) {
+                return response(['Message' => 'Unfriend Successfuly']);
+            } else {
+                return response(['Message' => 'You are not the friend of ' . $fid]);
+            }
+        } catch (\Exception $ex) {
+            return response()->json(['error' => $ex->getMessage()], 500);
         }
     }
 }

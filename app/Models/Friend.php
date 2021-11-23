@@ -12,7 +12,7 @@ class Friend extends Model
     use HasApiTokens, HasFactory, Notifiable;
     protected $fillable = [
         'userid_1',
-        'userid_2'
+        'userid_2',
     ];
 
     protected $table = 'friends_request';
